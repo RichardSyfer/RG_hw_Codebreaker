@@ -8,14 +8,8 @@ module Codebreaker
         @game.start
         @secret_code = @game.instance_variable_get(:@secret_code)
       end
-      it 'generates secret code' do
-        expect(@secret_code).not_to be_empty
-      end
-      it 'saves 4 numbers secret code' do
-        expect(@secret_code.length).to eq 4
-      end
-      it 'saves secret code with numbers from 1 to 6' do
-        expect(@secret_code).to match(/[1-6]+/)
+      it 'generates and saves secret code with numbers from 1 to 6' do
+        expect(@secret_code).to match(/^[1-6]{4}$/)
       end
     end
   end

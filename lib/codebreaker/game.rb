@@ -5,7 +5,7 @@ module Codebreaker
     end
 
     def start
-      @secret_code = '1234'
+      @secret_code = Array.new(4).map { rand(1..7) }
     end
   end
 end
