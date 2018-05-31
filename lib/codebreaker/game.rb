@@ -14,7 +14,8 @@ module Codebreaker
     end
 
     def start
-      @secret_code = Array.new(4) { rand(1..6) }
+      # @secret_code = Array.new(4) { rand(1..6) }
+      @secret_code = [1, 2, 1, 3]
     end
 
     def win?
@@ -22,7 +23,7 @@ module Codebreaker
     end
 
     def lose?
-      @attempts_remain == 0
+      @attempts_remain.zero?
     end
 
     def game_over?
@@ -40,17 +41,21 @@ module Codebreaker
       @secret_code.join
     end
 
-    # TODO: #check
     def code_check(code)
+      result = []
       @breaker_code = code.split('').map(&:to_i)
-
-      result = @breaker_code.map.with_index { |v, i|
-        if @secret_code.include?(v)
-          @secret_code[i] == v ? '+' : '-'
+      if @breaker_code == @secret_code
+        result << %w[+ + + +]
+      else
+        intersection = @breaker_code & @secret_code
+        unless intersection.empty?
+          result = intersection.map.each do |v|
+            @breaker_code.index(v) == @secret_code.index(v) ? '+' : '-'
+          end
         end
-      }.compact.sort.join(' ')
+      end
 
-      p "Attempt result: #{result}"
+      p "Attempt result: #{result.sort.join}"
       p "Remaining attempts: #{@attempts_remain -= 1}"
     end
 
