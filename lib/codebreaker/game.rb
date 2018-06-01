@@ -14,8 +14,7 @@ module Codebreaker
     end
 
     def start
-      # @secret_code = Array.new(4) { rand(1..6) }
-      @secret_code = [1, 2, 1, 3]
+      @secret_code = Array.new(4) { rand(1..6) }
     end
 
     def win?
@@ -43,7 +42,7 @@ module Codebreaker
 
     def code_check(code)
       result = []
-      @breaker_code = code.split('').map(&:to_i)
+      @breaker_code = code.to_i.digits.reverse
       if @breaker_code == @secret_code
         result << %w[+ + + +]
       else
