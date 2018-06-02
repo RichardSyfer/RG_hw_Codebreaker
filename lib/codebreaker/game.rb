@@ -42,35 +42,16 @@ module Codebreaker
 
     def code_check(code)
       result = []
-      @breaker_code = code.chars.map(&:to_i)
+      player_code = @breaker_code = code.chars.map(&:to_i)
       secret = @secret_code
-      # # @breaker_code = code.to_i.digits.reverse
-      # if @breaker_code == @secret_code
-      #   result << %w[+ + + +]
-      # else
-      #   intersection = @breaker_code & @secret_code
-      #   unless intersection.empty?
-      #     result = intersection.map.each do |v|
-      #       @breaker_code.index(v) == @secret_code.index(v) ? '+' : '-'
-      #     end
-      #   end
-      # end
 
-      # inner_code, inner_secret = [], []
-
-      @breaker_code.each_with_index do |v, i|
+      player_code.each_with_index do |v, i|
         if @secret_code[i] == v
-          result << '+'
-          secret.delete_at(i)
+          result.push('+')
+          player_code[i], secret[i] = nil, nil
         end
       end
-@breaker_code.each do |v|
-
-if
-          secret.include?(v)
-          result << '-'
-end
-end
+      (secret & player_code).compact.count.times { result.push('-') }
 
       @attempts_remain -= 1
       @attempt_result = result.sort.join
@@ -94,9 +75,3 @@ end
     end
   end
 end
-
-g = Codebreaker::Game.new
-p g.start
-code = '1235'
-g.code_check(code)
-g.show_attempt_result
