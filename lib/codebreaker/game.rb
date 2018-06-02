@@ -5,7 +5,7 @@ module Codebreaker
   class Game
     HINTS = 3
     ATTEMPTS = 10
-
+    attr_reader :attempt_result
     def initialize
       @secret_code = []
       @breaker_code = []
@@ -21,12 +21,12 @@ module Codebreaker
       @breaker_code == @secret_code
     end
 
-    def lose?
+    def lost?
       @attempts_remain.zero?
     end
 
     def game_over?
-      win? || lose?
+      win? || lost?
     end
 
     def hints
@@ -42,20 +42,43 @@ module Codebreaker
 
     def code_check(code)
       result = []
-      @breaker_code = code.to_i.digits.reverse
-      if @breaker_code == @secret_code
-        result << %w[+ + + +]
-      else
-        intersection = @breaker_code & @secret_code
-        unless intersection.empty?
-          result = intersection.map.each do |v|
-            @breaker_code.index(v) == @secret_code.index(v) ? '+' : '-'
-          end
+      @breaker_code = code.chars.map(&:to_i)
+      secret = @secret_code
+      # # @breaker_code = code.to_i.digits.reverse
+      # if @breaker_code == @secret_code
+      #   result << %w[+ + + +]
+      # else
+      #   intersection = @breaker_code & @secret_code
+      #   unless intersection.empty?
+      #     result = intersection.map.each do |v|
+      #       @breaker_code.index(v) == @secret_code.index(v) ? '+' : '-'
+      #     end
+      #   end
+      # end
+
+      # inner_code, inner_secret = [], []
+
+      @breaker_code.each_with_index do |v, i|
+        if @secret_code[i] == v
+          result << '+'
+          secret.delete_at(i)
         end
       end
+@breaker_code.each do |v|
 
-      p "Attempt result: #{result.sort.join}"
-      p "Remaining attempts: #{@attempts_remain -= 1}"
+if
+          secret.include?(v)
+          result << '-'
+end
+end
+
+      @attempts_remain -= 1
+      @attempt_result = result.sort.join
+    end
+
+    def show_attempt_result
+      p "Attempt result: #{@attempt_result}"
+      p "Remaining attempts: #{@attempts_remain}"
     end
 
     def save_result
@@ -71,3 +94,9 @@ module Codebreaker
     end
   end
 end
+
+g = Codebreaker::Game.new
+p g.start
+code = '1235'
+g.code_check(code)
+g.show_attempt_result

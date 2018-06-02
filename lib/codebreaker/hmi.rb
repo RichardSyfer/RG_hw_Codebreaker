@@ -11,6 +11,7 @@ module Codebreaker
         answ = gets.chomp
         if answ =~ /^[1-6]{4}$/
           @game.code_check(answ)
+          @game.show_attempt_result
         elsif answ =~ /^[Hh]{1}$/
           @game.hints
         elsif answ =~ /^[Qq]{1}$/
