@@ -10,5 +10,7 @@ require "codebreaker"
 # require "pry"
 # Pry.start
 
-require "irb"
-IRB.start(__FILE__)
+# require "irb"
+# IRB.start(__FILE__)
+
+Codebreaker::Hmi.new.launch_game

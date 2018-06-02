@@ -41,17 +41,18 @@ module Codebreaker
     end
 
     def code_check(code)
-      result = []
-      player_code = @breaker_code = code.chars.map(&:to_i)
-      secret = @secret_code
+      result, loc_code, loc_secret = [], [], []
+      @breaker_code = code.chars.map(&:to_i)
 
-      player_code.each_with_index do |v, i|
+      @breaker_code.each_with_index do |v, i|
         if @secret_code[i] == v
-          result.push('+')
-          player_code[i], secret[i] = nil, nil
+          result << '+'
+        else
+          loc_code << v
+          loc_secret << @secret_code[i]
         end
       end
-      (secret & player_code).compact.count.times { result.push('-') }
+      (loc_secret & loc_code).compact.count.times { result << '-' }
 
       @attempts_remain -= 1
       @attempt_result = result.sort.join
