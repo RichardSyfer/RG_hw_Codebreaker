@@ -28,9 +28,11 @@ module Codebreaker
     private
 
     def greeting
-      p 'Welcome to Codebreaker!'
-      p 'Lets try break the code'
-      p 'Enter suggested code OR "h" for hint, "q" for exit'
+      print <<-STR
+        Welcome to Codebreaker!
+        Lets try break the code
+        Enter suggested code OR "h" for hint, "q" for exit
+        STR
     end
 
     def save_offer
