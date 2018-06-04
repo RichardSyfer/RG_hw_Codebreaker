@@ -72,7 +72,7 @@ module Codebreaker
         attempts: "#{ATTEMPTS - @attempts_remain}",
         result: win? ? 'won' : 'lost'
       }
-      File.open('game_data.yml', 'w') { |f| f.write YAML.dump(game_data) }
+      File.open('./lib/game_data.yml', 'a+') { |f| f.write YAML.dump(game_data) }
     end
   end
 end
