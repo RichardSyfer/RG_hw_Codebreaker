@@ -7,7 +7,7 @@ module Codebreaker
 
     describe '#launch_game' do
       before do
-        allow(hmi).to receive(:gets).and_return('1234', 'yes')
+        allow(hmi).to receive(:gets).and_return('1234')
       end
       it 'print greeting' do
         string =<<-STR

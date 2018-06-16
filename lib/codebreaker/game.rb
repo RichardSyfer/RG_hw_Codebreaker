@@ -41,7 +41,9 @@ module Codebreaker
     end
 
     def code_check(code)
-      result, loc_code, loc_secret = [], [], []
+      result = []
+      loc_code = []
+      loc_secret = []
       @breaker_code = code.chars.map(&:to_i)
 
       @breaker_code.each_with_index do |v, i|
@@ -69,7 +71,7 @@ module Codebreaker
       game_data = {
         game_date: Date.today.to_s,
         player_name: codebreaker_name,
-        attempts: "#{ATTEMPTS - @attempts_remain}",
+        attempts: (ATTEMPTS - @attempts_remain).to_s,
         result: win? ? 'won' : 'lost'
       }
       File.open('./lib/game_data.yml', 'a+') { |f| f.write YAML.dump(game_data) }
