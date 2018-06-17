@@ -52,7 +52,7 @@ module Codebreaker
       end
     end
 
-    describe '#win?' do
+    describe '#won?' do
       it 'returns true, if player guessed code' do
         cheking_code_algorithm('1234', '1234')
         expect(game.win?).to be true
@@ -70,11 +70,13 @@ module Codebreaker
     end
 
     describe '#game_over?' do
-      it 'returns true, if player won or lost' do
-        game.instance_variable_set(:@attempts_remain, 0)
-        expect(game.game_over?).to be true
-
+      it 'returns true, if player won' do
         cheking_code_algorithm('1234', '1234')
+        expect(game.game_over?).to be true
+      end
+
+      it 'returns true, if player lost' do
+        game.instance_variable_set(:@attempts_remain, 0)
         expect(game.game_over?).to be true
       end
     end
@@ -82,17 +84,17 @@ module Codebreaker
     describe '#hints' do
       it 'doesn\'t returns hint if there are no more hints left' do
         game.instance_variable_set(:@hints_count, 0)
-        expect { game.hints }.to output(/No hints remains/).to_stdout
+        expect(game.hint).to eq nil
       end
 
       it 'doesn\'t returns hint if player guessed all digits of code' do
         cheking_code_algorithm('1234', '4231')
-        expect { game.hints }.to output(/You guessed all numbers/).to_stdout
+        expect(game.hint).to eq nil
       end
 
       it 'returns hint if it possible' do
         cheking_code_algorithm('1234', '4531')
-        expect { game.hints }.to output(/HINT: 2/).to_stdout
+        expect(game.hint).to eq 2
       end
     end
 

@@ -19,16 +19,11 @@ module Codebreaker
         hmi.launch_game
       end
 
-    #   describe 'call Game.methods' do
-    #     it '#code_check' do
-    #       allow(hmi).to receive(:gets).and_return('1234', 'asd')
-    #       # expect(game).to receive(:code_check)
-    #       # hmi.launch_game
-    #     end
-
-    #     it '#hints'
-    #     it '#save_result'
-    #   end
+      it '#show_hint' do
+        # allow(hmi).to receive(:gets).and_return('1234', 'h')
+        expect(hmi).to receive(:show_hint).and_return(5)
+        hmi.show_hint
+      end
     end
 
   end

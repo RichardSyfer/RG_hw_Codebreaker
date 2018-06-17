@@ -2,18 +2,27 @@ module Codebreaker
   class Hmi
     def initialize
       @game = Game.new
+      @message = GameAppMessages.new
+    end
+
+    def game_init
+      puts @message.show_message(:game_intro)
+      puts @message.show_message(:login)
+      @codebreaker_name = gets.chomp
+      puts @message.show_message(:game_start)
+      @game.start
     end
 
     def launch_game
-      greeting
-      @game.start
+      game_init
+
       until @game.game_over?
         answ = gets.chomp
         if answ =~ /^[1-6]{4}$/
           @game.code_check(answ)
-          @game.show_attempt_result
+          show_attempt_result
         elsif answ =~ /^[Hh]{1}$/
-          @game.hints
+          show_hint
         elsif answ =~ /^[Qq]{1}$/
           return
         else
@@ -25,14 +34,20 @@ module Codebreaker
       replay_offer
     end
 
-    private
+    # private
 
-    def greeting
-      print <<-STR
-        Welcome to Codebreaker!
-        Lets try break the code
-        Enter suggested code OR "h" for hint, "q" for exit
-        STR
+    def show_hint
+      return @message.show_message(:no_hint) unless @game.hints_count.zero?
+      return @message.show_message(:no_need_hint) unless @game.hint.nil?
+      @message.show_message(:hint,
+                            hint: @game.show_hint,
+                            hints_count: @game.hints_count)
+    end
+
+    def show_attempt_result
+      @message.show_message(:attempt_result,
+                            attempt_result: @game.attempt_result,
+                            attempts_remain: @game.attempts_remain)
     end
 
     def save_offer

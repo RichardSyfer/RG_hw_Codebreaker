@@ -5,7 +5,7 @@ module Codebreaker
   class Game
     HINTS = 3
     ATTEMPTS = 10
-    attr_reader :attempt_result
+    attr_reader :hints_count, :attempt_result, :attempts_remain
     def initialize
       @secret_code = []
       @breaker_code = []
@@ -29,11 +29,9 @@ module Codebreaker
       win? || lost?
     end
 
-    def hints
-      return p 'No hints remains' if @hints_count.zero?
-      hint = @secret_code - @breaker_code
-      return p 'You guessed all numbers, try swap them' if hint.empty?
-      p "HINT: #{hint.sample}, #{@hints_count -= 1} hints remains"
+    def hint
+      @hints_count -= 1
+      (@secret_code - @breaker_code).sample unless @hints_count <= 0
     end
 
     def secret
@@ -59,15 +57,9 @@ module Codebreaker
       @attempts_remain -= 1
       @attempt_result = result.sort.join
     end
-
-    def show_attempt_result
-      p "Attempt result: #{@attempt_result}"
-      p "Remaining attempts: #{@attempts_remain}"
-    end
-
     def save_result
-      p 'Input your name: '
-      codebreaker_name = gets.chomp
+      # p 'Input your name: '
+      # codebreaker_name = gets.chomp
       game_data = {
         game_date: Date.today.to_s,
         player_name: codebreaker_name,
@@ -78,3 +70,10 @@ module Codebreaker
     end
   end
 end
+
+# c = Codebreaker::Game.new
+# c.instance_variable_set(:@secret_code, [1,2,3,4])
+# c.instance_variable_set(:@breaker_code, [1,2,5,4])
+# c.instance_variable_set(:@hints_count, 0)
+
+# p c.hint
