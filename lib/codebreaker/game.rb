@@ -6,74 +6,78 @@ module Codebreaker
     HINTS = 3
     ATTEMPTS = 10
     attr_reader :hints_count, :attempt_result, :attempts_remain
-    def initialize
-      @secret_code = []
-      @breaker_code = []
+
+    def initialize(player_name)
+      @codebreaker_name = player_name
+      @secret_code = ''
       @hints_count = HINTS
       @attempts_remain = ATTEMPTS
+      @game_data_file_path = File.join(__dir__, 'game_data.yml')
     end
 
     def start
-      @secret_code = Array.new(4) { rand(1..6) }
+      @secret_code = Array.new(4) { rand(1..6) }.join
     end
 
-    def win?
-      @breaker_code == @secret_code
+    def won?
+      @attempt_result == '++++'
     end
 
     def lost?
-      @attempts_remain.zero?
+      @attempts_remain.zero? && !won?
     end
 
     def game_over?
-      win? || lost?
+      won? || lost?
+    end
+
+    def game_state
+      return 'pending' unless game_over?
+      return 'won' if won?
+      'lost' if lost?
+    end
+
+    def valid_attempt?(code)
+      code =~ /^[1-6]{4}$/ ? true : false
+    end
+
+    def make_attempt(code)
+      return if game_over?
+      @attempts_remain -= 1
+      @attempt_result = GameCodeChecker.new(@secret_code, code).check_result
     end
 
     def hint
       @hints_count -= 1
-      (@secret_code - @breaker_code).sample unless @hints_count <= 0
+      @secret_code.chars.sample unless @hints_count <= 0
     end
 
     def secret
-      @secret_code.join
+      @secret_code
     end
 
-    def code_check(code)
-      result = []
-      loc_code = []
-      loc_secret = []
-      @breaker_code = code.chars.map(&:to_i)
-
-      @breaker_code.each_with_index do |v, i|
-        if @secret_code[i] == v
-          result << '+'
-        else
-          loc_code << v
-          loc_secret << @secret_code[i]
-        end
-      end
-      (loc_secret & loc_code).compact.count.times { result << '-' }
-
-      @attempts_remain -= 1
-      @attempt_result = result.sort.join
-    end
-    def save_result
-      # p 'Input your name: '
-      # codebreaker_name = gets.chomp
-      game_data = {
+    def game_data
+      {
         game_date: Date.today.to_s,
-        player_name: codebreaker_name,
+        player_name: @codebreaker_name,
+        result: game_state,
+        secret_code: secret,
+        attempt_result: @attempt_result,
         attempts: (ATTEMPTS - @attempts_remain).to_s,
-        result: win? ? 'won' : 'lost'
+        hints_left: @hints_count
       }
-      File.open('./lib/game_data.yml', 'a+') { |f| f.write YAML.dump(game_data) }
+    end
+
+    def save_result
+      File.open(@game_data_file_path, 'w') { |f| f.write YAML.dump(game_data) }
+    end
+
+    def load_game_score
+      YAML.load(File.open(@game_data_file_path, 'r')) if File.file?(@game_data_file_path)
+    end
+
+    def erase_game_score
+      File.delete(@game_data_file_path) if File.file?(@game_data_file_path)
     end
   end
 end
-
-# c = Codebreaker::Game.new
-# c.instance_variable_set(:@secret_code, [1,2,3,4])
-# c.instance_variable_set(:@breaker_code, [1,2,5,4])
-# c.instance_variable_set(:@hints_count, 0)
-
-# p c.hint

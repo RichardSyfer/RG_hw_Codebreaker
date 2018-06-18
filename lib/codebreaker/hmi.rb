@@ -1,7 +1,8 @@
 module Codebreaker
   class Hmi
     def initialize
-      @game = Game.new
+      @game_stop = false
+      @hmi_commands = %w[help hint save replay exit show_score erase_score]
       @message = GameAppMessages.new
     end
 
@@ -9,59 +10,80 @@ module Codebreaker
       puts @message.show_message(:game_intro)
       puts @message.show_message(:login)
       @codebreaker_name = gets.chomp
-      puts @message.show_message(:game_start)
-      @game.start
+      @game = Game.new(@codebreaker_name)
+      puts @message.show_message(:game_start, name: @codebreaker_name)
+      launch_game
     end
 
     def launch_game
-      game_init
-
-      until @game.game_over?
-        answ = gets.chomp
-        if answ =~ /^[1-6]{4}$/
-          @game.code_check(answ)
-          show_attempt_result
-        elsif answ =~ /^[Hh]{1}$/
-          show_hint
-        elsif answ =~ /^[Qq]{1}$/
-          return
-        else
-          p 'Incorrect input'
+      @game.start
+      until @game_stop
+        answer = gets.chomp
+        begin
+          raise puts @message.show_message(:failed_input) unless answer_valid?(answer)
+          raise puts send(('hmi_cmd_' + answer.downcase).to_sym) if @hmi_commands.include?(answer)
+          @game.make_attempt(answer)
+          puts @game.game_over? ? show_game_result : show_attempt_result
+        rescue
+          next
         end
       end
-      p @game.win? ? 'Superb game! You won' : "Sorry, but you, code was #{@game.secret}"
-      save_offer
-      replay_offer
     end
 
-    # private
+    def answer_valid?(answer)
+      @game.valid_attempt?(answer) || @hmi_commands.include?(answer)
+    end
 
-    def show_hint
-      return @message.show_message(:no_hint) unless @game.hints_count.zero?
-      return @message.show_message(:no_need_hint) unless @game.hint.nil?
-      @message.show_message(:hint,
-                            hint: @game.show_hint,
-                            hints_count: @game.hints_count)
+    def show_game_result
+      puts @message.show_message(:congrats) if @game.won?
+      puts @message.show_message(:regrets, secret: @game.secret) if @game.lost?
+      hmi_cmd_save
+      hmi_cmd_exit
     end
 
     def show_attempt_result
-      @message.show_message(:attempt_result,
+      @message.show_message(:attempt_result_msg,
                             attempt_result: @game.attempt_result,
-                            attempts_remain: @game.attempts_remain)
+                            attempts_remain: @game.attempts_remain,
+                            hints_remain: @game.hints_count)
     end
 
-    def save_offer
-      p 'Would you like save result'
-      @game.save_result if gets.chomp =~ /^[Yy]{1}$/
+    def hmi_cmd_hint
+      return @message.show_message(:no_hint) if @game.hints_count.zero?
+      @message.show_message(:hint,
+                            hint: @game.hint,
+                            hints_count: @game.hints_count)
     end
 
-    def replay_offer
-      p 'Would you like play again?'
-      if gets.chomp =~ /^[Yy]{1}$/
-        @game = Game.new
-        system('clear')
-        launch_game
-      end
+    def hmi_cmd_save
+      @game.save_result
+      puts @message.show_message(:saved)
+    end
+
+    def hmi_cmd_help
+      puts @message.show_message(:help)
+    end
+
+    def hmi_cmd_replay
+      @game = Game.new(@codebreaker_name)
+      system('clear')
+      puts @message.show_message(:replay)
+      launch_game
+    end
+
+    def hmi_cmd_exit
+      @game_stop = true
+      puts @message.show_message(:game_stop)
+    end
+
+    def hmi_cmd_show_score
+      result = @game.load_game_score
+      puts @message.show_message(:show_score, score: result)
+    end
+
+    def hmi_cmd_erase_score
+      @game.erase_game_score
+      @message.show_message(:erase_score)
     end
   end
 end

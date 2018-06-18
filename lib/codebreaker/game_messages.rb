@@ -1,12 +1,14 @@
 module Codebreaker
   class GameAppMessages
     def show_message(method, data = nil)
+      return send(method) if data.nil?
       send(method, data)
     end
 
     def game_intro
       <<~INTRO
         ____________________CODEBREAKER_________________________
+
         Welcome to Codebreaker!
         Codebreaker is a logic game in which a code-breaker
         tries to break a secret code created by a code-maker.
@@ -23,35 +25,94 @@ module Codebreaker
       LOGIN
     end
 
-    def game_start
+    def game_start(data)
       <<~GAME_START
-        Sooo...
+        ________________________________________________________
+
+        Are you ready #{data[:name]} ?
         Lets try break the code
-        Enter suggested code OR "h" for hint, "q" for exit
+        ________________________________________________________
+
+        Enter suggested code OR "hint"
+        "help" to show more options
         ________________________________________________________
       GAME_START
     end
 
-    def attempt_result(data)
+    def help
+      <<~HELP
+        ________________________________________________________
+
+        help - shows commands list
+        hint - shows code hint
+        save - save score
+        show_scores - shows old game scores
+        erase_scores - erase game scores
+        replay - relaunching game
+        exit - terminating game
+        ________________________________________________________
+      HELP
+    end
+
+    def failed_input
+      'Incorrect input'
+    end
+
+    def attempt_result_msg(data)
       <<~RES
         Attempt result: #{data[:attempt_result]}
         Remaining attempts: #{data[:attempts_remain]}
+        Hints remain: #{data[:hints_remain]}
       RES
+    end
+
+    def congrats
+      'Superb game! You won'
+    end
+
+    def regrets(data)
+      "Sorry, but you lost, code was #{data[:secret]}"
     end
 
     def no_hint
       'No hints remains'
     end
 
-    def no_need_hint
-      'You guessed all numbers, try swap them'
-    end
+    # def no_need_hint
+    #   'You guessed all numbers, try swap them'
+    # end
+
+    # def attempt_before_hint
+    #   'Try make guess, before asking about hints :)'
+    # end
 
     def hint(data)
       "HINT: #{data[:hint]}, #{data[:hints_count]} hints remains"
     end
+
+    def replay
+      '_____________________GAME_RESTARTED_____________________'
+    end
+
+    def saved
+      '___________________GAME_RESULT_SAVED____________________'
+    end
+
+    def game_stop
+      '________________CODEBREAKER_TERMINATED__________________'
+    end
+
+    def erase_score
+      'Score info deleted'
+    end
+
+    def show_score(data)
+      return 'No saved score' if data[:score].empty?
+      score = ''
+      data[:score].each { |k, v| score += "#{k}: #{v} \n" }
+        "\n___________________CODEBREAKER_SCORE____________________\n\n" +
+        score +
+        "________________________________________________________\n"
+    end
   end
 end
-
-# puts Codebreaker::GameAppMessages.new.attempt_result(attempt_result: '+--', attempts_remain: 3)
-# p Codebreaker::GameAppMessages.new.hint(hint: '++--', hints_count: 3)
