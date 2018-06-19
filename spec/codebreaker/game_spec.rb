@@ -1,14 +1,14 @@
 # frozen_string_literal: true
-
+require 'yaml'
 require_relative '../spec_helper'
 module Codebreaker
   RSpec.describe Game do
     include Helper
 
-    let(:game) { Game.new }
+    let(:game) { Game.new('John Doe') }
 
     describe '#start' do
-      let(:secret_code) { game.instance_variable_get(:@secret_code).join }
+      let(:secret_code) { game.instance_variable_get(:@secret_code) }
       before do
         game.start
       end
@@ -18,44 +18,18 @@ module Codebreaker
       end
     end
 
-    describe '#code_check' do
-      describe 'cheking code algorithm' do
-        it 'returns \'++++\' when the secret code is equal entered code' do
-          cheking_code_algorithm('1234', '1234')
-          expect(game.attempt_result).to eq '++++'
-        end
-
-        it 'returns empty string if wrong digits was guessed' do
-          cheking_code_algorithm('1234', '5555')
-          expect(game.attempt_result).to eq ''
-        end
-
-        it 'returns one \'+\' sign if guessed one digit with monotype input - i.e. 5555' do
-          cheking_code_algorithm('1235', '5555')
-          expect(game.attempt_result).to eq '+'
-        end
-
-        it 'returns \'+\' if digit and position was guessed' do
-          cheking_code_algorithm('2134', '5634')
-          expect(game.attempt_result).to eq '++'
-        end
-
-        it 'returns \'-\' if digit was guessed but not a position' do
-          cheking_code_algorithm('6345', '4563')
-          expect(game.attempt_result).to eq '----'
-        end
-
-        it 'returns mix of \'-\' and  \'+\' signs if some guessed digits on right position and other not' do
-          cheking_code_algorithm('6345', '6235')
-          expect(game.attempt_result).to eq '++-'
-        end
-      end
-    end
-
     describe '#won?' do
       it 'returns true, if player guessed code' do
-        cheking_code_algorithm('1234', '1234')
-        expect(game.win?).to be true
+        game.instance_variable_set(:@attempt_result, '++++')
+        expect(game.won?).to be true
+      end
+      it 'returns false, if player no attempts remain' do
+        game.instance_variable_set(:@attempts_remain, 0)
+        expect(game.won?).to be false
+      end
+      it 'returns false, if player lost' do
+        allow(game).to receive(:lost?).and_return(true)
+        expect(game.won?).to be false
       end
     end
 
@@ -65,54 +39,85 @@ module Codebreaker
         expect(game.lost?).to be true
       end
       it 'returns false, if player have attempts remain' do
+        game.instance_variable_set(:@attempts_remain, 1)
+        expect(game.lost?).to be false
+      end
+      it 'returns false, if player won' do
+        allow(game).to receive(:won?).and_return(true)
         expect(game.lost?).to be false
       end
     end
 
     describe '#game_over?' do
       it 'returns true, if player won' do
-        cheking_code_algorithm('1234', '1234')
+        allow(game).to receive(:won?).and_return(true)
         expect(game.game_over?).to be true
       end
 
       it 'returns true, if player lost' do
-        game.instance_variable_set(:@attempts_remain, 0)
+        allow(game).to receive(:lost?).and_return(true)
         expect(game.game_over?).to be true
       end
     end
 
-    describe '#hints' do
+    describe '#game_state' do
+      it 'returns "pending", if game not over' do
+        allow(game).to receive(:game_over?).and_return(false)
+        expect(game.game_state).to eq 'pending'
+      end
+
+      it 'returns "won", if player won' do
+        allow(game).to receive(:won?).and_return(true)
+        expect(game.game_state).to eq 'won'
+      end
+
+      it 'returns "lost", if player lost' do
+        allow(game).to receive(:lost?).and_return(true)
+        expect(game.game_state).to eq 'lost'
+      end
+    end
+
+    describe '#valid_attempt?' do
+      it 'returns true, if player guess-code valid: "6543"' do
+        expect(game.valid_attempt?('6543')).to be true
+      end
+      it 'returns false, if player guess-code invalid: "0123"' do
+        expect(game.valid_attempt?('0123')).to be false
+      end
+      it 'returns false, if player guess-code invalid: "12345"' do
+        expect(game.valid_attempt?('12345')).to be false
+      end
+      it 'returns false, if player guess-code invalid: "7123"' do
+        expect(game.valid_attempt?('7123')).to be false
+      end
+    end
+
+     describe '#hint' do
       it 'doesn\'t returns hint if there are no more hints left' do
         game.instance_variable_set(:@hints_count, 0)
         expect(game.hint).to eq nil
       end
 
-      it 'doesn\'t returns hint if player guessed all digits of code' do
-        cheking_code_algorithm('1234', '4231')
-        expect(game.hint).to eq nil
-      end
-
       it 'returns hint if it possible' do
-        cheking_code_algorithm('1234', '4531')
-        expect(game.hint).to eq 2
+        game.instance_variable_set(:@secret_code, '1234')
+        expect(game.hint).to match(/^[1234]{1}$/)
       end
     end
 
     describe '#secret' do
       it 'returns secret code' do
-        game.instance_variable_set(:@secret_code, [1, 2, 3, 4])
+        game.instance_variable_set(:@secret_code, '1234')
         expect(game.secret).to eq '1234'
       end
     end
 
     describe '#save_result' do
-      let(:player_name) { 'Test_Player_' + rand(1..9999).to_s }
-
       it 'saves game result' do
-        allow(game).to receive(:gets).and_return(player_name)
+        game.instance_variable_set(:@secret_code, '1234')
+        game.instance_variable_set(:@attempt_result, '++++')
         game.save_result
-        data = File.read('./lib/game_data.yml')
-        expect(data).to include(player_name)
+        saved_result = YAML.load(File.open(game.instance_variable_get(:@game_data_file_path), 'r'))
+        expect(saved_result).to eq(saved_result)
       end
     end
   end

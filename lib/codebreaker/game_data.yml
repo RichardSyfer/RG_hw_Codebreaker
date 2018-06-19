@@ -1,8 +1,8 @@
 ---
-:game_date: '2018-06-18'
-:player_name: sd
-:result: pending
-:secret_code: '4666'
-:attempt_result: 
+:game_date: '2018-06-19'
+:player_name: John Doe
+:result: won
+:secret_code: '1234'
+:attempt_result: "++++"
 :attempts: '0'
 :hints_left: 3
