@@ -46,8 +46,8 @@ module Codebreaker
         help - shows commands list
         hint - shows code hint
         save - save score
-        show_scores - shows old game scores
-        erase_scores - erase game scores
+        show_score - shows old game scores
+        erase_score - erase game scores
         replay - relaunching game
         exit - terminating game
         ________________________________________________________
@@ -77,14 +77,6 @@ module Codebreaker
     def no_hint
       'No hints remains'
     end
-
-    # def no_need_hint
-    #   'You guessed all numbers, try swap them'
-    # end
-
-    # def attempt_before_hint
-    #   'Try make guess, before asking about hints :)'
-    # end
 
     def hint(data)
       "HINT: #{data[:hint]}, #{data[:hints_count]} hints remains"

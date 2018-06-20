@@ -49,7 +49,7 @@ module Codebreaker
 
     def hint
       @hints_count -= 1
-      @secret_code.chars.sample unless @hints_count <= 0
+      @secret_code.chars.sample unless @hints_count < 0
     end
 
     def secret

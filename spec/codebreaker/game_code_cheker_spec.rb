@@ -1,38 +1,50 @@
 require_relative '../spec_helper'
 module Codebreaker
   RSpec.describe GameCodeChecker do
-
     describe '#code_check' do
-      describe 'cheking code algorithm' do
-        # it 'returns \'++++\' when the secret code is equal entered code' do
-        #   cheking_code_algorithm('1234', '1234')
-        #   expect(game.attempt_result).to eq '++++'
-        # end
+      context 'cheking code algorithm' do
+        samples = [
+          ['1234', '1234', '++++'],
+          ['6543', '6543', '++++'],
+          ['6543', '6541', '+++'],
+          ['6543', '6512', '++'],
+          ['6543', '6122', '+'],
+          ['6543', '2222', ''],
+          ['6543', '3456', '----'],
+          ['6543', '3451', '---'],
+          ['6543', '3411', '--'],
+          ['6543', '3111', '-'],
+          ['3333', '3111', '+'],
+          ['3133', '3111', '++'],
+          ['3124', '3142', '++--'],
+          ['3124', '3412', '+---'],
+          ['5124', '3412', '---'],
+          ['5124', '3124', '+++'],
+          ['5124', '5334', '++'],
+          ['5124', '5332', '+-'],
+          ['5124', '4125', '++--'],
+          ['5124', '5214', '++--'],
+          ['5124', '2541', '----'],
+          ['5124', '6416', '--'],
+          ['5124', '4533', '--'],
+          ['1534', '5312', '---'],
+          ['1534', '5436', '+--'],
+          ['1534', '2514', '++-'],
+          ['1534', '6223', '-'],
+          ['1534', '2564', '++'],
+          ['1534', '6664', '+'],
+          ['1534', '1111', '+'],
+          ['1534', '3333', '+']
+        ]
 
-        # it 'returns empty string if wrong digits was guessed' do
-        #   cheking_code_algorithm('1234', '5555')
-        #   expect(game.attempt_result).to eq ''
-        # end
-
-        # it 'returns one \'+\' sign if guessed one digit with monotype input - i.e. 5555' do
-        #   cheking_code_algorithm('1235', '5555')
-        #   expect(game.attempt_result).to eq '+'
-        # end
-
-        # it 'returns \'+\' if digit and position was guessed' do
-        #   cheking_code_algorithm('2134', '5634')
-        #   expect(game.attempt_result).to eq '++'
-        # end
-
-        # it 'returns \'-\' if digit was guessed but not a position' do
-        #   cheking_code_algorithm('6345', '4563')
-        #   expect(game.attempt_result).to eq '----'
-        # end
-
-        # it 'returns mix of \'-\' and  \'+\' signs if some guessed digits on right position and other not' do
-        #   cheking_code_algorithm('6345', '6235')
-        #   expect(game.attempt_result).to eq '++-'
-        # end
+        samples.each do |sample|
+          it 'on secret:"' + sample[0] +
+            '" with guess: "' + sample[1] +
+            '" returns: "' + sample[2] do
+              checker = GameCodeChecker.new(sample[0], sample[1])
+              expect(checker.check_result).to eq sample[2]
+            end
+          end
       end
     end
   end
