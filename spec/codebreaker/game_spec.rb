@@ -90,7 +90,27 @@ module Codebreaker
       end
     end
 
-     describe '#hint' do
+    describe '#make_attempt' do
+      context 'if game over (won or lost)' do
+        it 'returns nil' do
+          allow(game).to receive(:game_over?).and_return(true)
+          expect(game.make_attempt('6543')).to be nil
+        end
+      end
+      context 'if game not over' do
+        it 'returns attempt result' do
+          game.instance_variable_set(:@secret_code, '6543')
+          expect(game.make_attempt('6522')).to eq '++'
+        end
+      end
+      it 'decreases attempts count on 1' do
+        from = game.attempts_remain
+        to = game.attempts_remain - 1
+        expect { game.make_attempt('1234') }.to change { game.attempts_remain }.from(from).to(to)
+      end
+    end
+
+    describe '#hint' do
       it 'doesn\'t returns hint if there are no more hints left' do
         game.instance_variable_set(:@hints_count, 0)
         expect(game.hint).to eq nil
