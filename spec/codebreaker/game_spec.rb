@@ -3,8 +3,6 @@ require 'yaml'
 require_relative '../spec_helper'
 module Codebreaker
   RSpec.describe Game do
-    include Helper
-
     let(:game) { Game.new('John Doe') }
 
     describe '#start' do
