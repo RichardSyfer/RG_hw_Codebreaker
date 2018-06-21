@@ -6,8 +6,8 @@ module Codebreaker
     let(:game) { hmi.instance_variable_get(:@game) }
     let(:game_initialization) do
       hmi.instance_variable_set(:@game, Game.new('John Doe'))
-      @game = hmi.instance_variable_get(:@game)
-      @game.start
+      game = hmi.instance_variable_get(:@game)
+      game.start
     end
 
     before { game_initialization }
@@ -20,8 +20,11 @@ module Codebreaker
       end
 
       context 'if user answer, is valid hmi command' do
-        # let(:commands) { hmi.instance_variable_get(:@hmi_commands) }
-        commands = %w[help hint save replay exit show_score erase_score]
+        # commands = %w[help hint save replay exit show_score erase_score]
+        hmi = Hmi.new
+        hmi.instance_variable_set(:@game, Game.new('John Kramer'))
+        commands = hmi.instance_variable_get(:@hmi_commands)
+
         commands.each do |cmd|
           it 'command: "' + cmd + '" returns "true"' do
             expect(hmi.answer_valid?(cmd)).to be true
