@@ -57,11 +57,11 @@ module Codebreaker
 
     def hmi_cmd_save
       @game.save_result
-      puts @message.show_message(:saved)
+      @message.show_message(:saved)
     end
 
     def hmi_cmd_help
-      puts @message.show_message(:help)
+      @message.show_message(:help)
     end
 
     def hmi_cmd_replay
@@ -73,12 +73,12 @@ module Codebreaker
 
     def hmi_cmd_exit
       @game_stop = true
-      puts @message.show_message(:game_stop)
+      @message.show_message(:game_stop)
     end
 
     def hmi_cmd_show_score
       result = @game.load_game_score
-      puts @message.show_message(:show_score, score: result)
+      @message.show_message(:show_score, score: result)
     end
 
     def hmi_cmd_erase_score
