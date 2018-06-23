@@ -41,7 +41,7 @@ module Codebreaker
 
     def help
       <<~HELP
-        ________________________________________________________
+        _______________HMI_COMMANDS_DESCRIPTIONS________________
 
         help - shows commands list
         hint - shows code hint

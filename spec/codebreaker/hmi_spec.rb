@@ -13,6 +13,34 @@ module Codebreaker
 
     before { game_initialization }
 
+    describe '#launch_game' do
+      before { allow(game).to receive(:game_over?).and_return(false, false, true) }
+      context 'if user enter wrong hmi command' do
+        it 'shows message about wrong input' do
+          allow(hmi).to receive(:gets).and_return('qwerty', '1111')
+          expect { hmi.launch_game }.to output(/Incorrect/).to_stdout
+        end
+      end
+      context 'if user enter code in wrong format' do
+        it 'shows message about wrong input' do
+          allow(hmi).to receive(:gets).and_return('0000', '1111')
+          expect { hmi.launch_game }.to output(/Incorrect/).to_stdout
+        end
+      end
+      context 'if user enter code' do
+        it 'shows message about attempt result' do
+          allow(hmi).to receive(:gets).and_return('1234', '1111')
+          expect { hmi.launch_game }.to output(/Attempt result:/).to_stdout
+        end
+      end
+      context 'if user enter hmi command [help]' do
+        it 'shows message with hmi command result' do
+          allow(hmi).to receive(:gets).and_return('help', '1111')
+          expect { hmi.launch_game }.to output(/HMI_COMMANDS_DESCRIPTIONS/).to_stdout
+        end
+      end
+    end
+
     describe '#answer_valid?' do
       context 'if user answer, is valid number: 6523' do
         it 'returns "true"' do
@@ -86,6 +114,7 @@ module Codebreaker
     end
 
     describe '#hmi_cmd_replay' do
+      before { allow(hmi).to receive(:system).with('clear') }
       it 'returns message "Game restarted"' do
         allow(hmi).to receive(:launch_game)
         expect { hmi.hmi_cmd_replay }.to output(/GAME_RESTARTED/).to_stdout

@@ -1,8 +1,8 @@
 ---
-:game_date: '2018-06-22'
-:player_name: John Doe
-:result: won
-:secret_code: '1234'
-:attempt_result: "++++"
-:attempts: '0'
+:game_date: '2018-06-23'
+:player_name: 'Test-player: John Doe'
+:result: 
+:secret_code: '4423'
+:attempt_result: ''
+:attempts: '1'
 :hints_left: 3
