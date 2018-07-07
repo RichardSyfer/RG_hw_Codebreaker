@@ -1,5 +1,15 @@
 module Codebreaker
   class Hmi
+    # HMI_CMD = {
+    #   'help': hmi_cmd_help,
+    #   'hint': hmi_cmd_hint,
+    #   'save': hmi_cmd_save,
+    #   'replay': hmi_cmd_replay,
+    #   'exit': hmi_cmd_exit,
+    #   'show_score': hmi_cmd_show_score,
+    #   'erase_score': hmi_cmd_erase_score
+    # }
+
     def initialize
       @game_stop = false
       @hmi_commands = %w[help hint save replay exit show_score erase_score]
@@ -22,6 +32,7 @@ module Codebreaker
         begin
           raise puts @message.show_message(:failed_input) unless answer_valid?(answer)
           raise puts send(('hmi_cmd_' + answer.downcase).to_sym) if @hmi_commands.include?(answer)
+          # raise puts HMI_CMD.fetch(answer.downcase).call if @hmi_commands.include?(answer)
           @game.make_attempt(answer)
           puts @game.game_over? ? show_game_result : show_attempt_result
         rescue
@@ -36,7 +47,7 @@ module Codebreaker
 
     def show_game_result
       puts @message.show_message(:congrats) if @game.won?
-      puts @message.show_message(:regrets, secret: @game.secret) if @game.lost?
+      puts @message.show_message(:regrets, secret: @game.secret_code) if @game.lost?
       hmi_cmd_save
       hmi_cmd_exit
     end

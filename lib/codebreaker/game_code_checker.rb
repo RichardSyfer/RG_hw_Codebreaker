@@ -1,24 +1,23 @@
 module Codebreaker
   class GameCodeChecker
+    WINNER_RESULT = '++++'.freeze
+
     def initialize(secret_code, breaker_input)
       @secret = secret_code.chars
       @breaker_code = breaker_input.chars
     end
 
     def check_result
-      return '++++' if @secret == @breaker_code
+      return WINNER_RESULT if @secret == @breaker_code
       (exact_matches + matches).join
     end
 
     def exact_matches
       @breaker_code.each_with_index.map do |v, i|
-        if @secret[i] == v
-          @breaker_code[i] = nil
-          @secret[i] = nil
-          '+'
-        else
-          next
-        end
+        next unless @secret[i] == v
+        @breaker_code[i] = nil
+        @secret[i] = nil
+        '+'
       end
     end
 

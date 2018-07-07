@@ -122,13 +122,6 @@ module Codebreaker
       end
     end
 
-    describe '#secret' do
-      it 'returns secret code' do
-        game.instance_variable_set(:@secret_code, '1234')
-        expect(game.secret).to eq '1234'
-      end
-    end
-
     describe '#save_result' do
       it 'saves game result' do
         game.instance_variable_set(:@secret_code, '1234')

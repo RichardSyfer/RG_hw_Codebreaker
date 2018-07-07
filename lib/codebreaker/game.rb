@@ -5,7 +5,8 @@ module Codebreaker
   class Game
     HINTS = 3
     ATTEMPTS = 10
-    attr_reader :hints_count, :attempt_result, :attempts_remain
+    WINNER_RESULT = '++++'.freeze
+    attr_reader :hints_count, :attempt_result, :attempts_remain, :secret_code
 
     def initialize(player_name)
       @codebreaker_name = player_name
@@ -20,7 +21,7 @@ module Codebreaker
     end
 
     def won?
-      @attempt_result == '++++'
+      @attempt_result == WINNER_RESULT
     end
 
     def lost?
@@ -38,7 +39,7 @@ module Codebreaker
     end
 
     def valid_attempt?(code)
-      code =~ /^[1-6]{4}$/ ? true : false
+      code.match?(/^[1-6]{4}$/) ? true : false
     end
 
     def make_attempt(code)
@@ -49,11 +50,7 @@ module Codebreaker
 
     def hint
       @hints_count -= 1
-      @secret_code.chars.sample unless @hints_count < 0
-    end
-
-    def secret
-      @secret_code
+      @secret_code.chars.sample unless @hints_count.negative?
     end
 
     def game_data
@@ -61,7 +58,7 @@ module Codebreaker
         game_date: Date.today.to_s,
         player_name: @codebreaker_name,
         result: game_state,
-        secret_code: secret,
+        secret_code: @secret_code,
         attempt_result: @attempt_result,
         attempts: (ATTEMPTS - @attempts_remain).to_s,
         hints_left: @hints_count

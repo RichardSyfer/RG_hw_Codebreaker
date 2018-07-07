@@ -1,8 +1,7 @@
 module Codebreaker
   class GameAppMessages
     def show_message(method, data = nil)
-      return send(method) if data.nil?
-      send(method, data)
+      data ? send(method, data) : send(method)
     end
 
     def game_intro
