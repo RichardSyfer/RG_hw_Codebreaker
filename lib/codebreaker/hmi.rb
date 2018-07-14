@@ -1,18 +1,18 @@
 module Codebreaker
   class Hmi
-    # HMI_CMD = {
-    #   'help': hmi_cmd_help,
-    #   'hint': hmi_cmd_hint,
-    #   'save': hmi_cmd_save,
-    #   'replay': hmi_cmd_replay,
-    #   'exit': hmi_cmd_exit,
-    #   'show_score': hmi_cmd_show_score,
-    #   'erase_score': hmi_cmd_erase_score
-    # }
+    HMI_CMD = {
+      'help' => ->(instance) { instance.hmi_cmd_help },
+      'hint' => ->(instance) { instance.hmi_cmd_hint },
+      'save' => ->(instance) { instance.hmi_cmd_save },
+      'replay' => ->(instance) { instance.hmi_cmd_replay },
+      'exit' => ->(instance) { instance.hmi_cmd_exit },
+      'show_score' => ->(instance) { instance.hmi_cmd_show_score },
+      'show_scores' => ->(instance) { instance.hmi_cmd_show_scores },
+      'erase_scores' => ->(instance) { instance.hmi_cmd_erase_scores }
+    }
 
     def initialize
       @game_stop = false
-      @hmi_commands = %w[help hint save replay exit show_score erase_score]
       @message = GameAppMessages.new
     end
 
@@ -31,8 +31,7 @@ module Codebreaker
         answer = gets.chomp
         begin
           raise puts @message.show_message(:failed_input) unless answer_valid?(answer)
-          raise puts send(('hmi_cmd_' + answer.downcase).to_sym) if @hmi_commands.include?(answer)
-          # raise puts HMI_CMD.fetch(answer.downcase).call if @hmi_commands.include?(answer)
+          raise puts HMI_CMD.fetch(answer).call(self) if HMI_CMD.keys.include?(answer)
           @game.make_attempt(answer)
           puts @game.game_over? ? show_game_result : show_attempt_result
         rescue
@@ -42,14 +41,14 @@ module Codebreaker
     end
 
     def answer_valid?(answer)
-      @game.valid_attempt?(answer) || @hmi_commands.include?(answer)
+      @game.valid_attempt?(answer) || HMI_CMD.keys.include?(answer)
     end
 
     def show_game_result
       puts @message.show_message(:congrats) if @game.won?
       puts @message.show_message(:regrets, secret: @game.secret_code) if @game.lost?
       hmi_cmd_save
-      hmi_cmd_exit
+      puts @message.show_message(:offer_new_game)
     end
 
     def show_attempt_result
@@ -92,7 +91,12 @@ module Codebreaker
       @message.show_message(:show_score, score: result)
     end
 
-    def hmi_cmd_erase_score
+    def hmi_cmd_show_scores
+      result = @game.load_game_score
+      @message.show_message(:show_scores, score: result)
+    end
+
+    def hmi_cmd_erase_scores
       @game.erase_game_score
       @message.show_message(:erase_score)
     end

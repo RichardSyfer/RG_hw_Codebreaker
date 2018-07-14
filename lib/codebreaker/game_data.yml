@@ -1,8 +1,15 @@
 ---
-:game_date: '2018-07-07'
-:player_name: 'Test-player: John Doe'
-:result: 
-:secret_code: '5636'
-:attempt_result: ''
-:attempts: '1'
-:hints_left: 3
+- :game_date: '2018-07-14'
+  :player_name: player_1
+  :result: pending
+  :secret_code: '4332'
+  :attempt_result: 
+  :attempts: '0'
+  :hints_left: 3
+- :game_date: '2018-07-14'
+  :player_name: player_1
+  :result: won
+  :secret_code: '4332'
+  :attempt_result: "++++"
+  :attempts: '1'
+  :hints_left: 3

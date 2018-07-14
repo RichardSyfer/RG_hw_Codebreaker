@@ -11,6 +11,7 @@ module Codebreaker
     def initialize(player_name)
       @codebreaker_name = player_name
       @secret_code = ''
+      @game_cheker = GameCodeChecker.new
       @hints_count = HINTS
       @attempts_remain = ATTEMPTS
       @game_data_file_path = File.join(__dir__, 'game_data.yml')
@@ -45,7 +46,7 @@ module Codebreaker
     def make_attempt(code)
       return if game_over?
       @attempts_remain -= 1
-      @attempt_result = GameCodeChecker.new(@secret_code, code).check_result
+      @attempt_result = @game_cheker.check_result(@secret_code, code)
     end
 
     def hint
@@ -66,7 +67,9 @@ module Codebreaker
     end
 
     def save_result
-      File.open(@game_data_file_path, 'w') { |f| f.write YAML.dump(game_data) }
+      scores_log = YAML.load_file(File.open(@game_data_file_path, 'r')) || []
+      scores_log[scores_log.count + 1] = game_data
+      File.open(@game_data_file_path, 'w') { |f| f.write YAML.dump(scores_log.compact) }
     end
 
     def load_game_score
@@ -74,7 +77,7 @@ module Codebreaker
     end
 
     def erase_game_score
-      File.delete(@game_data_file_path) if File.file?(@game_data_file_path)
+      File.open(@game_data_file_path, 'w') { |f| f.write('') }
     end
   end
 end

@@ -3,7 +3,7 @@ require_relative '../spec_helper'
 module Codebreaker
   RSpec.describe Hmi do
     let(:hmi) { Hmi.new }
-    hmi_commands = %w[help hint save replay exit show_score erase_score]
+    hmi_commands = Hmi::HMI_CMD.keys
     let(:game) { hmi.instance_variable_get(:@game) }
     let(:game_initialization) do
       hmi.instance_variable_set(:@game, Game.new('Test-player: John Doe'))
@@ -17,25 +17,25 @@ module Codebreaker
       before { allow(game).to receive(:game_over?).and_return(false, false, true) }
       context 'if user enter wrong hmi command' do
         it 'shows message about wrong input' do
-          allow(hmi).to receive(:gets).and_return('qwerty', '1111')
-          expect { hmi.launch_game }.to output(/Incorrect/).to_stdout
+          allow(hmi).to receive(:gets).and_return('qwerty', 'exit')
+          expect { hmi.launch_game }.to output(/ERROR:_INCORRECT_INPUT/).to_stdout
         end
       end
       context 'if user enter code in wrong format' do
         it 'shows message about wrong input' do
-          allow(hmi).to receive(:gets).and_return('0000', '1111')
-          expect { hmi.launch_game }.to output(/Incorrect/).to_stdout
+          allow(hmi).to receive(:gets).and_return('0000', 'exit')
+          expect { hmi.launch_game }.to output(/ERROR:_INCORRECT_INPUT/).to_stdout
         end
       end
       context 'if user enter code' do
         it 'shows message about attempt result' do
-          allow(hmi).to receive(:gets).and_return('1234', '1111')
+          allow(hmi).to receive(:gets).and_return('1234', 'exit')
           expect { hmi.launch_game }.to output(/Attempt result:/).to_stdout
         end
       end
       context 'if user enter hmi command [help]' do
         it 'shows message with hmi command result' do
-          allow(hmi).to receive(:gets).and_return('help', '1111')
+          allow(hmi).to receive(:gets).and_return('help', 'exit')
           expect { hmi.launch_game }.to output(/HMI_COMMANDS_DESCRIPTIONS/).to_stdout
         end
       end
@@ -70,7 +70,7 @@ module Codebreaker
           allow(hmi).to receive(:hmi_cmd_save)
           allow(hmi).to receive(:hmi_cmd_exit)
           allow(game).to receive(:won?).and_return(true)
-          expect { hmi.show_game_result }.to output(/Superb game! You won/).to_stdout
+          expect { hmi.show_game_result }.to output(/SUPERB_GAME!_YOU_WON/).to_stdout
         end
       end
       context 'if player lost' do
@@ -78,7 +78,7 @@ module Codebreaker
           allow(hmi).to receive(:hmi_cmd_save)
           allow(hmi).to receive(:hmi_cmd_exit)
           allow(game).to receive(:lost?).and_return(true)
-          expect { hmi.show_game_result }.to output(/Sorry, but/).to_stdout
+          expect { hmi.show_game_result }.to output(/SORRY,_BUT_YOU_LOST./).to_stdout
         end
       end
     end
@@ -141,13 +141,27 @@ module Codebreaker
     describe '#hmi_cmd_show_score' do
       context 'if score log not empty' do
         it 'returns message about saved game score' do
-          expect(hmi.hmi_cmd_show_score).to match(/CODEBREAKER_SCORE/)
+          expect(hmi.hmi_cmd_show_score).to match(/LAST_GAME_SCORE/)
         end
       end
       context 'if score log is empty' do
         it 'returns message about empty score log' do
-          allow(game).to receive(:load_game_score).and_return('')
-          expect(hmi.hmi_cmd_show_score).to match(/No saved score/)
+          allow(game).to receive(:load_game_score).and_return(false)
+          expect(hmi.hmi_cmd_show_score).to match(/SCORE_LOG_EMPTY/)
+        end
+      end
+    end
+
+    describe '#hmi_cmd_show_scores' do
+      context 'if scores log not empty' do
+        it 'returns message about saved game scores' do
+          expect(hmi.hmi_cmd_show_scores).to match(/CODEBREAKER_SCORES/)
+        end
+      end
+      context 'if score log is empty' do
+        it 'returns message about empty score log' do
+          allow(game).to receive(:load_game_score).and_return(false)
+          expect(hmi.hmi_cmd_show_scores).to match(/SCORE_LOG_EMPTY/)
         end
       end
     end
@@ -155,7 +169,7 @@ module Codebreaker
     describe '#hmi_cmd_erase_score' do
       it 'returns message about deleted score' do
         allow(game).to receive(:erase_game_score)
-        expect(hmi.hmi_cmd_erase_score).to match(/Score info deleted/)
+        expect(hmi.hmi_cmd_erase_scores).to match(/SCORE_INFO_DELETED/)
       end
     end
   end

@@ -1,6 +1,8 @@
 require_relative '../spec_helper'
 module Codebreaker
   RSpec.describe GameCodeChecker do
+    let(:checker) { GameCodeChecker.new }
+
     describe '#check_result' do
       context 'cheking code algorithm' do
         samples = [
@@ -41,15 +43,17 @@ module Codebreaker
           it 'on secret:"' + sample[0] +
             '" with guess: "' + sample[1] +
             '" returns: "' + sample[2] do
-              checker = GameCodeChecker.new(sample[0], sample[1])
-              expect(checker.check_result).to eq sample[2]
+              expect(checker.check_result(sample[0], sample[1])).to eq sample[2]
             end
           end
       end
     end
 
     describe '#exact_matches' do
-      let(:checker) { GameCodeChecker.new('5621', '5341') }
+      before do
+        checker.instance_variable_set(:@secret, %w[5 6 2 1])
+        checker.instance_variable_set(:@breaker_code, %w[5 3 4 1])
+      end
       it 'returns "+", on place with exact matches' do
         expect(checker.exact_matches).to eq ['+', nil, nil, '+']
       end
@@ -64,7 +68,8 @@ module Codebreaker
     describe '#matches' do
       context 'if secret code and guess have same numbers on different positions' do
         it 'returns "-"' do
-          checker = GameCodeChecker.new('6512', '5341')
+          checker.instance_variable_set(:@secret, %w[6 5 1 2])
+          checker.instance_variable_set(:@breaker_code, %w[5 3 4 1])
           expect(checker.matches).to eq ['-', '-']
         end
       end

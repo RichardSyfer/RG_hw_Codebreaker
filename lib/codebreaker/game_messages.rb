@@ -45,8 +45,9 @@ module Codebreaker
         help - shows commands list
         hint - shows code hint
         save - save score
-        show_score - shows old game scores
-        erase_score - erase game scores
+        show_score - shows last game score
+        show_scores - shows old game scores
+        erase_scores - erase game scores
         replay - relaunching game
         exit - terminating game
         ________________________________________________________
@@ -54,7 +55,7 @@ module Codebreaker
     end
 
     def failed_input
-      'Incorrect input'
+      '_________________ERROR:_INCORRECT_INPUT_________________'
     end
 
     def attempt_result_msg(data)
@@ -66,15 +67,23 @@ module Codebreaker
     end
 
     def congrats
-      'Superb game! You won'
+      '________________SUPERB_GAME!_YOU_WON____________________'
     end
 
     def regrets(data)
-      "Sorry, but you lost, code was #{data[:secret]}"
+      "______SORRY,_BUT_YOU_LOST._CODE_WAS_\"#{data[:secret]}\"_______"
+    end
+
+    def offer_new_game
+      <<~OFFER
+        Enter "replay" if you want start new game,
+        Enter "show_score" to see game scores,
+        Enter "exit" to terminate game
+      OFFER
     end
 
     def no_hint
-      'No hints remains'
+      '___________________NO_HINTS_REMAINS_____________________'
     end
 
     def hint(data)
@@ -94,16 +103,36 @@ module Codebreaker
     end
 
     def erase_score
-      'Score info deleted'
+      '___________________SCORE_INFO_DELETED___________________'
     end
 
     def show_score(data)
-      return 'No saved score' if data[:score].empty?
-      score = ''
-      data[:score].each { |k, v| score += "#{k}: #{v} \n" }
-        "\n___________________CODEBREAKER_SCORE____________________\n\n" +
-        score +
-        "________________________________________________________\n"
+      return '___________________SCORE_LOG_EMPTY___________________' unless data[:score]
+      log = ''
+      data[:score].last.each do |k, v|
+        log += "#{k}: #{v} \n"
+      end
+      <<~LOG
+        \n___________________LAST_GAME_SCORE___________________\n
+        #{log}
+        _____________________END_OF_SCORE_LOG___________________\n
+      LOG
+    end
+
+    def show_scores(data)
+      return '___________________SCORE_LOG_EMPTY___________________' unless data[:score]
+      log = ''
+      data[:score].each do |record|
+        record.each do |k, v|
+          log += "#{k}: #{v} \n"
+        end
+        log += "----------------------------\n"
+      end
+      <<~LOG
+        \n___________________CODEBREAKER_SCORES___________________\n
+        #{log}
+        _____________________END_OF_SCORE_LOG___________________\n
+      LOG
     end
   end
 end
